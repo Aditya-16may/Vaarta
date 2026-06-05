@@ -4,7 +4,7 @@ require("dotenv").config();
 const auth = require("./routes/auth")
 const messages = require("./routes/messages")
 const path = require("path");
-
+const PORT = process.env.Port||3000;
 const __dirname = path.resolve();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
@@ -20,4 +20,6 @@ if(process.env.NODE_ENV === "production"){
     })
 }
 
-app.listen(process.env.My_port||3000);
+app.listen(PORT, ()=>{
+    console.log(`Server is running on port : ${PORT}`);
+});
