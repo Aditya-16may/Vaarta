@@ -4,7 +4,7 @@ require("dotenv").config();
 const auth = require("./routes/auth")
 const messages = require("./routes/messages")
 const path = require("path");
-const PORT = process.env.Port||3000;
+const PORT = process.env.PORT||3000;
 const __dirname = path.resolve();
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
