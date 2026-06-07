@@ -1,10 +1,9 @@
 const express = require("express");
+const { signin } = require("../controllers/authcontroller");
 
 const router = express.Router()
 
-router.get("/signin", (req,res)=>{
-    
-})
+router.post("/signin", signin)
 router.get("/login", (req,res)=>{
     res.send("This is the login page..");
 })

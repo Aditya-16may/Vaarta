@@ -5,7 +5,10 @@ require("dotenv").config();
 const auth = require("./routes/auth");
 const messages = require("./routes/messages");
 const path = require("path");
+const connectDB = require("./lib/db");
+const cookieParser = require("cookie-parser");
 
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -21,6 +24,12 @@ if (process.env.NODE_ENV === "production") {
 }
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on ${PORT}`);
-});
+const startServer = async () => {
+    await connectDB();
+
+    app.listen(PORT, () => {
+        console.log(`Server running on ${PORT}`);
+    });
+};
+
+startServer();
