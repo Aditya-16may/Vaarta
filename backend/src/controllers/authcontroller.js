@@ -1,8 +1,7 @@
-const jwt = require("jsonwebtoken");
 const userModel = require("../models/User");
 const generateToken = require("./generateToken");
+const { sendWelcomeEmail } = require("../emails/emailHandlers");
 const bcrypt = require("bcrypt");
-const cookieParser = require("cookie-parser");
 
 module.exports.signin = async (req,res)=>{
     let { name, email, password} = req.body;
@@ -40,6 +39,12 @@ module.exports.signin = async (req,res)=>{
                         secure : process.env.NODE_ENV === "development" ? false : true,
                     });
 
+                    try{
+                        await sendWelcomeEmail(email, name, process.env.CLIENT_URL);
+                    } catch(error){
+                        console.error("failed to send welcom email, error : ", error);
+                    }
+
                     // console.log("cookie is set");
                     return res.status(201).json({
                         _id: user._id,
@@ -58,4 +63,49 @@ module.exports.signin = async (req,res)=>{
         res.status(500).json({message : "Internal server error"});
     }
     
+}
+
+module.exports.login = async (req,res)=>{
+    let {email, password} = req.body;
+    if(!email || !password){
+        return res.status(400).json({message:"All fields are required!!"});
+    }
+    try{
+        const user = await userModel.findOne({email});
+        if(!user) return res.status(400).json({message: "Invalid credentials"})
+        let can_login = await bcrypt.compare(password, user.password);
+        if(can_login){
+            let token = generateToken(user);
+            res.cookie("token", token,{
+                maxAge: 7*24*60*60*1000,
+                httpOnly : true, //prevent XSS attacks: cross-site scripting
+                sameSite : "strict", // CSRF attacks
+                secure : process.env.NODE_ENV === "development" ? false : true,
+                    
+            });
+            return res.status(201).json({
+                        message: "User logged in",
+                        _id: user._id,
+                        email : user.email,
+                        name : user.name,
+                        profilePic : user.profilePic
+                    });
+
+        } else {
+            res.status(400).json({message: "Invalid credentials"});
+        }
+    } catch(error){
+        console.error("Error occured : ", error)
+    }
+     
+}
+
+module.exports.logout = (req,res)=>{
+    res.cookie("token", "",{
+        maxAge: 0,
+        httpOnly:true,
+        sameSite:"strict",
+        secure: process.env.NODE_ENV !== "development"
+    });
+    res.status(200).json({message:"User logged out"});
 }
