@@ -4,17 +4,18 @@ const userModal = require("../models/User")
 
 module.exports.IsLoggedIn = async (req,res,next)=>{
     if(!req.cookies.token){
-        return res.status(400).json({message : "You need to be logged in first.."})
+        return res.status(401).json({message : "You need to be logged in first.."})
     }
-    else{
+    else{ 
         try{
             let decoded = jwt.verify(req.cookies.token, process.env.JWT_SECRET);
-            let user = await userModal.findOne({email : decoded.email});
+            let user = await userModal.findOne({email : decoded.email}).select("-password");
             req.user = user;
             next();
         }
         catch(error){
-            return res.status(400).json({message : "An error occured .. Please try again..!"});
+            console.error("Error occured during logging in : ", error)
+            return res.status(500).json({message : "An error occured .. Please try again..!"});
         }
     }
 }

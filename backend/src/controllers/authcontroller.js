@@ -2,6 +2,7 @@ const userModel = require("../models/User");
 const generateToken = require("./generateToken");
 const { sendWelcomeEmail } = require("../emails/emailHandlers");
 const bcrypt = require("bcrypt");
+const v2 = require("../lib/cloudinary")
 
 module.exports.signin = async (req,res)=>{
     let { name, email, password} = req.body;
@@ -108,4 +109,30 @@ module.exports.logout = (req,res)=>{
         secure: process.env.NODE_ENV !== "development"
     });
     res.status(200).json({message:"User logged out"});
+}
+
+module.exports.updateProfile = async (req,res)=>{
+    try{
+        let { profilePic } = req.body;
+        if(!profilePic){
+            return res.status(400).json({message:"Profile pic is required"});
+        }
+        let user = await userModel.findOne({email : req.user.email});
+        if(!user){
+            console.log("user not found during profile pic updation..!");
+            return res.status(400).json({message:"User not found"});
+        }
+        const upload = await v2.uploader.upload(profilePic);
+        user.profilePic = upload.secure_url;
+
+        await user.save();
+        res.status(200).json({
+            message: "Profile pic updated",
+            new : true
+        });
+
+    } catch(error){
+        console.error("An error occured while updation of profile : ", error);
+        return res.status(400).json({message: "Something went wrong while updation of profile pic"});
+    }
 }
