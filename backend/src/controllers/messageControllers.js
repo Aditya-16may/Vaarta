@@ -33,8 +33,15 @@ module.exports.getMessagesByUserId = async (req,res)=>{
 module.exports.sendMessages = async (req,res)=>{
     try{
         let { text, image} = req.body;
+        if(!text && !image){
+            res.status(400).json({message:"Text or image is required to send.."});
+        }
         const sender_id = req.user._id;
         const receiver_id = req.params.id;
+        const receiver_exists = await UserModal.findOne({_id : receiver_id});
+        if(!receiver_exists){
+            res.status(400).json({message:"Receiver not found.."})
+        }
         let image_url;
         if(image){
             const upload = await v2.uploader.upload(image);

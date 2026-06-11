@@ -7,13 +7,22 @@ const messages = require("./routes/messages");
 const path = require("path");
 const connectDB = require("./lib/db");
 const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const { IsLoggedIn } = require("./middlewares/IsLoggedIn");
 
+app.use(
+  cors({
+    origin:process.env.CLIENT_URL,
+    credentials: true,
+  })
+);
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/auth", auth);
 app.use("/api/messages", messages);
+app.get("/check", IsLoggedIn)
 
 if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "../../frontend", "dist")));
