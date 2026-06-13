@@ -127,8 +127,7 @@ module.exports.updateProfile = async (req,res)=>{
 
         await user.save();
         res.status(200).json({
-            message: "Profile pic updated",
-            new : true
+            profilePic: user.profilePic
         });
 
     } catch(error){

@@ -7,7 +7,7 @@ module.exports.getAllcontacts = async (req,res)=>{
         const loggedinUser = req.user._id;
         const contacts = await UserModal.find({_id:{$ne: loggedinUser}}).select("-password");
 
-        res.status(200).json({message: contacts});
+        res.status(200).json({contacts});
     }  catch(error){
         console.error("Error occured while filtering the contacts : ", error);
         res.status(500).json({message: "Server  error "});
