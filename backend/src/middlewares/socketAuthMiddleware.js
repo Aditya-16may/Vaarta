@@ -1,7 +1,7 @@
-import jwt from "jsonwebtoken";
-import userModel from "../models/userModel.js";
+const jwt = require("jsonwebtoken");
+const userModel = require("../models/User");
 
-export const socketAuthMiddleware = (socket, next) => {
+module.exports.socketAuthMiddleware = (socket, next) => {
     try{
         const token = socket.handshake.headers.cookie
             ?.split("; ")
