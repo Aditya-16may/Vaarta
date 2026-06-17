@@ -1,5 +1,4 @@
 const express = require("express");
-const app = express();
 require("dotenv").config();
 
 const auth = require("./routes/auth");
@@ -9,6 +8,7 @@ const connectDB = require("./lib/db");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const { IsLoggedIn } = require("./middlewares/IsLoggedIn");
+const { server, io, app } = require("./lib/socket");
 
 app.use(
   cors({
@@ -33,10 +33,11 @@ if (process.env.NODE_ENV === "production") {
 }
 
 const PORT = process.env.PORT || 3000;
+
 const startServer = async () => {
     await connectDB();
 
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
         console.log(`Server running on ${PORT}`);
     });
 };
