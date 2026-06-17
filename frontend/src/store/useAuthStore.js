@@ -106,12 +106,12 @@ export const useAuthStore = create((set,get) => ({
         const {authUser, socket} = get();
         if(!authUser || socket?.connected) return;
 
-        socket = io(BASE_URL, {
+        const local_socket = io(BASE_URL, {
             withCredentials: true,
         });
 
-        socket.connect();
-        set({socket});
+        local_socket.connect();
+        set({socket: local_socket});
 
         socket.on("userOnline", (onlineUsers)=>{
             set({OnlineUsers: onlineUsers});
