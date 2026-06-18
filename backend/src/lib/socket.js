@@ -14,18 +14,22 @@ const io = new Server(server, {
 
 io.use(socketAuthMiddleware);
 
+const getReceiverSocketId = (receiverId) => {
+    return userSocketMap[receiverId];
+};
+
 const userSocketMap = {};
 
 io.on("connection", (socket) => {
     const userId = socket.userId;
     userSocketMap[userId] = socket.id; 
 
-    io.emit("userOnline", Object.keys(userSocketMap));
+    io.emit("onlineUsers", Object.keys(userSocketMap));
 
     socket.on("disconnect", () => {
         delete userSocketMap[userId];
-        io.emit("userOffline", Object.keys(userSocketMap));
+        io.emit("onlineUsers", Object.keys(userSocketMap));
     });
 });
 
-module.exports =  { server, io, app };
+module.exports =  { server, io, app, getReceiverSocketId };

@@ -1,6 +1,7 @@
 const  v2  = require("../lib/cloudinary");
 const MessageModel = require("../models/messagemodel")
 const UserModal = require("../models/User");
+const { getReceiverSocketId, io } = require("../lib/socket");
 
 module.exports.getAllcontacts = async (req,res)=>{
     try{
@@ -56,7 +57,10 @@ module.exports.sendMessages = async (req,res)=>{
         })
 
         // scoket io implementation later on for real time data display
-
+        const receiverSocketId = getReceiverSocketId(receiver_id);
+        if(receiverSocketId){
+            io.to(receiverSocketId).emit("newMessage", message);
+        }
         res.status(200).json({message});
 
     }catch(error){

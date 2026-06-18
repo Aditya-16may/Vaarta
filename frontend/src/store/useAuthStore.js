@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { axiosInstance } from '../lib/axios';
 import toast, { Toaster } from "react-hot-toast";
+import { io } from "socket.io-client";
 
 const BASE_URL = import.meta.env.MODE === "development" ? "http://localhost:3000" : "/";
 
@@ -14,13 +15,14 @@ export const useAuthStore = create((set,get) => ({
 
     checkAuth : async ()=>{
         try{
-            const res = await axiosInstance.get("/auth/check")
-            set({authUser: res.data});
-        } catch(error){
-            console.error("An error occured while checking the authentication in useAuthStore.js : ", error);
+            const res = await axiosInstance.get("/auth/check");
+            set({authUser:res.data});
+            get().connectSocket();
+
+        }catch(error){
             set({authUser:null});
-        } finally{
-            set({isCheckingAuth: false});
+        }finally{
+            set({isCheckingAuth:false});
         }
     },
     
@@ -106,16 +108,25 @@ export const useAuthStore = create((set,get) => ({
         const {authUser, socket} = get();
         if(!authUser || socket?.connected) return;
 
-        const local_socket = io(BASE_URL, {
+        const local_socket = io("http://localhost:3000", {
             withCredentials: true,
         });
 
-        local_socket.connect();
-        set({socket: local_socket});
+        local_socket.on("connect", () => {
+            console.log("Socket Connected:", local_socket.id);
+        });
 
-        socket.on("userOnline", (onlineUsers)=>{
+        local_socket.on("connect_error", (err) => {
+            console.log("Socket Error:", err.message);
+        });
+
+        local_socket.connect();
+        
+
+        local_socket.on("onlineUsers", (onlineUsers)=>{
             set({OnlineUsers: onlineUsers});
         });
+        set({socket: local_socket});
     },
 
     disconnectSocket:()=>{

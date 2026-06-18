@@ -10,7 +10,7 @@ import { useRef } from 'react';
 
 
 function ChatContainer() {
-  const { messages, selectedUser, getMessagesByUserId, isMessagesLoading } = useChatStore();
+  const { messages, selectedUser, getMessagesByUserId, isMessagesLoading,subscribeToNewMessages, unsubscribeFromNewMessages } = useChatStore();
   const {authUser} = useAuthStore();
   const messageEndRef = useRef(null);
 
@@ -18,13 +18,20 @@ function ChatContainer() {
     if(selectedUser){
       getMessagesByUserId(selectedUser._id);
     }
-  },[selectedUser,getMessagesByUserId]);
+    subscribeToNewMessages();
+    
+    return ()=>{
+      unsubscribeFromNewMessages();
+    }
+
+  },[selectedUser,getMessagesByUserId,subscribeToNewMessages,unsubscribeFromNewMessages]);
 
   useEffect(() => {
     if (messageEndRef.current) {
       messageEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
 
   return (
     <>
