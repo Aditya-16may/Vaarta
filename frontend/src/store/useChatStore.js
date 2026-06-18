@@ -2,8 +2,11 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import {useAuthStore} from "./useAuthStore";
 import toast from "react-hot-toast";
-import { io } from "socket.io-client";
 
+const notificationSound = new Audio("/sounds/notification.mp3");
+
+notificationSound.preload = "auto";
+notificationSound.load();
 
 export const useChatStore = create((set,get)=> ({
     allContacts: [],
@@ -109,12 +112,9 @@ export const useChatStore = create((set,get)=> ({
                 set({messages: [...messages, newMessage]});
 
                 if(isSoundEnabled){
-                    const notificationSound = new Audio("/sounds/notification.mp3");
-
                     notificationSound.currentTime = 0;
-                    notificationSound.play().catch((error)=>{
-                        console.error("Error playing notification sound: ", error);
-                    });
+                    notificationSound.volume = 1;
+                    notificationSound.play().catch(console.error);
                 }
             });
         }
@@ -125,5 +125,26 @@ export const useChatStore = create((set,get)=> ({
         if(socket){
             socket.off("newMessage");
         }
+    },
+    
+    deleteMessage: async (messageId) => {
+    try {
+        await axiosInstance.delete(
+            `/messages/delete/${messageId}`
+        );
+
+        set({
+            messages: get().messages.filter(
+                msg => msg._id !== messageId
+            )
+        });
+
+        toast.success("Message deleted");
+    } catch (error) {
+        toast.error(
+            error.response?.data?.message ||
+            "Failed to delete message"
+        );
     }
+},
 }))

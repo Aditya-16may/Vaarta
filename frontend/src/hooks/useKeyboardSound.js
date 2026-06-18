@@ -6,12 +6,23 @@ const keyStrokeSounds = [
     new Audio('/sounds/keystroke4.mp3'),
 ];
 
+keyStrokeSounds.forEach(sound => {
+    sound.preload = "auto";
+    sound.load();
+});
+
 function useKeyboardSound() {
     const playRandomKeyStrokeSound = () => {
-        const sound = keyStrokeSounds[Math.floor(Math.random() * keyStrokeSounds.length)];
-        sound.currentTime = 0;
-        sound.play();
-    }
+        const baseSound =
+            keyStrokeSounds[Math.floor(Math.random() * keyStrokeSounds.length)];
+
+        const sound = baseSound.cloneNode();
+
+        sound.volume = 1;
+
+        sound.play().catch(console.error);
+    };
+
     return { playRandomKeyStrokeSound };
 }
 

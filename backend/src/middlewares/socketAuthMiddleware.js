@@ -2,10 +2,12 @@ const jwt = require("jsonwebtoken");
 const userModel = require("../models/User");
 
 module.exports.socketAuthMiddleware = (socket, next) => {
+    // console.log("===== SOCKET HANDSHAKE =====");
+    // console.log(socket.handshake.headers.cookie);
     try{
         const token = socket.handshake.headers.cookie
             ?.split("; ")
-            .find((cookie) => cookie.startsWith("jwt="))
+            .find((cookie) => cookie.startsWith("token="))
             ?.split("=")[1];
 
         if (!token) {

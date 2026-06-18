@@ -10,7 +10,7 @@ import { useRef } from 'react';
 
 
 function ChatContainer() {
-  const { messages, selectedUser, getMessagesByUserId, isMessagesLoading,subscribeToNewMessages, unsubscribeFromNewMessages } = useChatStore();
+  const { messages, selectedUser, getMessagesByUserId, isMessagesLoading,subscribeToNewMessages, unsubscribeFromNewMessages, deleteMessage } = useChatStore();
   const {authUser} = useAuthStore();
   const messageEndRef = useRef(null);
 
@@ -43,6 +43,17 @@ function ChatContainer() {
               <div
                 key={msg._id}
                 className={`chat ${msg.senderId === authUser._id ? "chat-end" : "chat-start"}`}
+                onContextMenu={(e) => {
+                  e.preventDefault();
+
+                  if (
+                      window.confirm(
+                          "Delete this message?"
+                      )
+                  ) {
+                      deleteMessage(msg._id);
+                  }
+              }}
               >
                 <div
                   className={`chat-bubble relative ${

@@ -21,7 +21,7 @@ module.exports.getMessagesByUserId = async (req,res)=>{
         const messages = await MessageModel.find({
             $or: [
                 {senderId:sender_id, receiverId: receiver_id},
-                {senderId:receiver_id, receriverId :sender_id}
+                {senderId:receiver_id, receiverId :sender_id}
             ]
         })
         res.status(200).json({message:messages});
@@ -35,13 +35,13 @@ module.exports.sendMessages = async (req,res)=>{
     try{
         let { text, image} = req.body;
         if(!text && !image){
-            res.status(400).json({message:"Text or image is required to send.."});
+            return res.status(400).json({message:"Text or image is required to send.."});
         }
         const sender_id = req.user._id;
         const receiver_id = req.params.id;
         const receiver_exists = await UserModal.findOne({_id : receiver_id});
         if(!receiver_exists){
-            res.status(400).json({message:"Receiver not found.."})
+            return res.status(400).json({message:"Receiver not found.."})
         }
         let image_url;
         if(image){
@@ -94,3 +94,35 @@ module.exports.getChatPartners = async (req,res)=>{
     }
     
 }   
+module.exports.deleteMessage = async (req, res) => {
+    try {
+        const { messageId } = req.params;
+
+        const message = await MessageModel.findById(messageId);
+
+        if (!message) {
+            return res.status(404).json({
+                message: "Message not found"
+            });
+        }
+
+        // Only sender can delete
+        if (message.senderId.toString() !== req.user._id.toString()) {
+            return res.status(403).json({
+                message: "You are not authorized to delete this message"
+            });
+        }
+
+        await MessageModel.findByIdAndDelete(messageId);
+
+        res.status(200).json({
+            message: "Message deleted"
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Internal server error"
+        });
+    }
+};

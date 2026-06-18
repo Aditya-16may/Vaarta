@@ -69,9 +69,14 @@ function MessageInput() {
         <input
           type="text"
           value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            isSoundEnabled && playRandomKeyStrokeSound();
+          onChange={(e) => setText(e.target.value)}
+          onKeyDown={(e) => {
+            if (
+              isSoundEnabled &&
+              !["Shift", "Control", "Alt", "Meta"].includes(e.key)
+            ) {
+              playRandomKeyStrokeSound();
+            }
           }}
           className="flex-1 bg-slate-800/50 border border-slate-700/50 rounded-lg py-2 px-4"
           placeholder="Type your message..."

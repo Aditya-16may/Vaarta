@@ -112,13 +112,13 @@ export const useAuthStore = create((set,get) => ({
             withCredentials: true,
         });
 
-        local_socket.on("connect", () => {
-            console.log("Socket Connected:", local_socket.id);
-        });
+        // local_socket.on("connect", () => {
+        //     console.log("Socket Connected:", local_socket.id);
+        // });
 
-        local_socket.on("connect_error", (err) => {
-            console.log("Socket Error:", err.message);
-        });
+        // local_socket.on("connect_error", (err) => {
+        //     console.log("Socket Error:", err.message);
+        // });
 
         local_socket.connect();
         
