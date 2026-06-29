@@ -28,7 +28,7 @@ if (process.env.NODE_ENV === "production") {
     const fs = require("fs");
 
     const frontendPath = path.join(__dirname, "../../frontend/dist");
-
+    console.log("Root contents:", fs.readdirSync("/app"));
     console.log("Frontend path:", frontendPath);
     console.log("Dist exists:", fs.existsSync(frontendPath));
     app.use(express.static(path.join(__dirname, "../../frontend", "dist")));
